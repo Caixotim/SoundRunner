@@ -9,6 +9,7 @@ import com.spotify.sdk.android.player.ConnectionStateCallback;
 import com.spotify.sdk.android.player.Player;
 import com.spotify.sdk.android.player.PlayerNotificationCallback;
 import com.spotify.sdk.android.player.PlayerState;
+import com.spotify.sdk.android.player.PlayerStateCallback;
 import com.spotify.sdk.android.player.Spotify;
 
 import org.json.JSONArray;
@@ -61,6 +62,10 @@ public class SpotifyHelper implements
         mPlayer.play(spotifyUri);
     }
 
+    public void pause() {
+        mPlayer.pause();
+    }
+
     public void play(List<String> spotifyUriList){
         if (mPlayer == null)
         {
@@ -85,41 +90,50 @@ public class SpotifyHelper implements
     }
 
     public void queryAndPlay(final int pace){
-        new RequestHttpTask() {
-
+        mPlayer.getPlayerState(new PlayerStateCallback() {
             @Override
-            protected void onPostExecute(String result) {
-                super.onPostExecute(result);
-                List<String> spotifyURIList = new ArrayList<String>();
+            public void onPlayerState(PlayerState playerState) {
+                if(!playerState.playing && playerState.positionInMs > 0) {
+                    mPlayer.resume();
+                } else {
+                    new RequestHttpTask() {
+                        @Override
+                        protected void onPostExecute(String result) {
+                        super.onPostExecute(result);
+                        List<String> spotifyURIList = new ArrayList<String>();
 
-                //getSong
-                try {
-                    if(result != null) {
-                        JSONObject jObject = new JSONObject(result);
+                        //getSong
+                        try {
+                            if(result != null) {
+                                JSONObject jObject = new JSONObject(result);
 
-                        JSONArray jArray = jObject.getJSONObject("response").getJSONArray("songs");
-                        int length = jArray.length();
-                        for (int i = 0; i < length; i++) {
-                            try {
-                                String songId = jArray.getJSONObject(i).getJSONArray("tracks").getJSONObject(0).getString("foreign_id");
-                                spotifyURIList.add(songId);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
+                                JSONArray jArray = jObject.getJSONObject("response").getJSONArray("songs");
+                                int length = jArray.length();
+                                for (int i = 0; i < length; i++) {
+                                    try {
+                                        String songId = jArray.getJSONObject(i).getJSONArray("tracks").getJSONObject(0).getString("foreign_id");
+                                        spotifyURIList.add(songId);
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
                             }
+                        } catch (JSONException e) {
+                            e.printStackTrace();
                         }
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
 
-                if (spotifyURIList.isEmpty()) {
-                    queryAndPlay(pace - 10);
-                }else {
-                    play(spotifyURIList);
-                }
+                        if (spotifyURIList.isEmpty()) {
+                            queryAndPlay(pace - 10);
+                        }else {
+                            play(spotifyURIList);
+                        }
 
+                        }
+                    }.execute(buildEchoNestRequest(pace));
+                }
             }
-        }.execute(buildEchoNestRequest(pace));
+        });
+
     }
 
     @Override

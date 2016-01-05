@@ -4,10 +4,10 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.support.v7.app.ActionBar;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -17,10 +17,6 @@ import android.widget.TextView;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class RunActivity extends AppCompatActivity {
 
@@ -32,6 +28,9 @@ public class RunActivity extends AppCompatActivity {
     private Intent intent;
     private SpotifyHelper spotifyHelper;
     private int lastPace = -50;
+    private boolean isSpotifyAuthenticated;
+    private boolean isUserRunning;
+    private boolean hasUserRan;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +44,47 @@ public class RunActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FloatingActionButton fab = (FloatingActionButton) view;
+                if(!isUserRunning) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        fab.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_media_pause, getApplicationContext().getTheme()));
+                    } else {
+                        fab.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_media_pause));
+                    }
+                    startRun();
+                } else {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                        fab.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_media_play, getApplicationContext().getTheme()));
+                    } else {
+                        fab.setImageDrawable(getResources().getDrawable(android.R.drawable.ic_media_play));
+                    }
+                    stopRun();
+                }
+            }
+        });
+
+        isSpotifyAuthenticated = false;
+        isUserRunning = false;
+        startSpotifyAuth();
+    }
+
+    private void startRun(){
+        isUserRunning = true;
+        // TODO: 04/01/16  this should be a foreground service
+        startService(intent);
+    }
+
+    private void stopRun(){
+        isUserRunning = false;
+        stopService(intent);
+        spotifyHelper.pause();
+    }
+
+    private void startSpotifyAuth() {
         intent = new Intent(this, MockService.class);
 
         AuthenticationRequest.Builder builder = new AuthenticationRequest.Builder(CLIENT_ID,
@@ -54,7 +94,6 @@ public class RunActivity extends AppCompatActivity {
         AuthenticationRequest request = builder.build();
 
         AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
-
     }
 
     @Override
@@ -67,6 +106,7 @@ public class RunActivity extends AppCompatActivity {
 
             if (response.getType() == AuthenticationResponse.Type.TOKEN) {
                 spotifyHelper = new SpotifyHelper(RunActivity.this, response);
+                isSpotifyAuthenticated = true;
             }
         }
     }
@@ -74,15 +114,13 @@ public class RunActivity extends AppCompatActivity {
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            handleSensorData(intent);
+        handleSensorData(intent);
         }
     };
 
     @Override
     public void onResume() {
         super.onResume();
-        // TODO: 04/01/16  this should be a foreground service
-        startService(intent);
         registerReceiver(broadcastReceiver, new IntentFilter(MockService.BROADCAST_ACTION));
     }
 
@@ -90,13 +128,19 @@ public class RunActivity extends AppCompatActivity {
     public void onPause() {
         super.onPause();
         unregisterReceiver(broadcastReceiver);
-        stopService(intent);
+    }
+
+    @Override
+    public void onStop(){
+        super.onStop();
+        stopRun();
     }
 
     public void updateTrackInfo(String currentTrack){
         TextView trackInfoUI = (TextView) findViewById(R.id.track_info);
         trackInfoUI.setText(currentTrack);
     }
+
 
     private void handleSensorData(Intent sensorDataIntent)
     {
@@ -112,7 +156,6 @@ public class RunActivity extends AppCompatActivity {
             }
         }
         lastPace = pace;
-
     }
 
 
