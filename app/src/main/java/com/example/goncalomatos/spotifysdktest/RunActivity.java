@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.spotify.sdk.android.authentication.AuthenticationClient;
@@ -30,7 +31,6 @@ public class RunActivity extends AppCompatActivity {
     private int lastPace = -50;
     private boolean isSpotifyAuthenticated;
     private boolean isUserRunning;
-    private boolean hasUserRan;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,6 +67,14 @@ public class RunActivity extends AppCompatActivity {
             }
         });
 
+        Button skipButton = (Button) findViewById(R.id.skip_button);
+        skipButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                spotifyHelper.skipSong();
+            }
+        });
+
         isSpotifyAuthenticated = false;
         isUserRunning = false;
         startSpotifyAuth();
@@ -74,12 +82,16 @@ public class RunActivity extends AppCompatActivity {
 
     private void startRun(){
         isUserRunning = true;
+        Button skipButton = (Button) findViewById(R.id.skip_button);
+        skipButton.setEnabled(true);
         // TODO: 04/01/16  this should be a foreground service
         startService(intent);
     }
 
     private void stopRun(){
         isUserRunning = false;
+        Button skipButton = (Button) findViewById(R.id.skip_button);
+        skipButton.setEnabled(false);
         stopService(intent);
         spotifyHelper.pause();
     }
@@ -149,9 +161,9 @@ public class RunActivity extends AppCompatActivity {
 
         //TODO: strategies and stuff
         if (pace > lastPace + 50 || pace < lastPace - 50 ) {
-            Log.d("RunActivity", "changin pace");
+            Log.d("RunActivity", "changing pace");
 
-            if(spotifyHelper != null) {
+            if(spotifyHelper != null && isSpotifyAuthenticated) {
                 spotifyHelper.queryAndPlay(pace);
             }
         }

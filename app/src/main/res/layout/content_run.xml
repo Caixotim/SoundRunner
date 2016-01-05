@@ -10,12 +10,22 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="com.example.goncalomatos.spotifysdktest.RunActivity"
-    tools:showIn="@layout/activity_run">
+    tools:showIn="@layout/activity_run"
+    android:orientation="vertical">
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="Large Text"
+        android:text="Track Info"
         android:id="@+id/track_info" />
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Skip song"
+        android:id="@+id/skip_button"
+        android:enabled="false" />
+
 </LinearLayout>

@@ -75,6 +75,9 @@ public class SpotifyHelper implements
         mPlayer.play(spotifyUriList);
     }
 
+    public void skipSong() {
+        mPlayer.skipToNext();
+    }
 
     protected String buildEchoNestRequest(int pace){
         return "http://developer.echonest.com/api/v4/playlist/static?api_key=" + ECHONEST_KEY
@@ -93,40 +96,40 @@ public class SpotifyHelper implements
         mPlayer.getPlayerState(new PlayerStateCallback() {
             @Override
             public void onPlayerState(PlayerState playerState) {
-                if(!playerState.playing && playerState.positionInMs > 0) {
+                if (!playerState.playing && playerState.positionInMs > 0) {
                     mPlayer.resume();
                 } else {
                     new RequestHttpTask() {
                         @Override
                         protected void onPostExecute(String result) {
-                        super.onPostExecute(result);
-                        List<String> spotifyURIList = new ArrayList<String>();
+                            super.onPostExecute(result);
+                            List<String> spotifyURIList = new ArrayList<String>();
 
-                        //getSong
-                        try {
-                            if(result != null) {
-                                JSONObject jObject = new JSONObject(result);
+                            //getSong
+                            try {
+                                if (result != null) {
+                                    JSONObject jObject = new JSONObject(result);
 
-                                JSONArray jArray = jObject.getJSONObject("response").getJSONArray("songs");
-                                int length = jArray.length();
-                                for (int i = 0; i < length; i++) {
-                                    try {
-                                        String songId = jArray.getJSONObject(i).getJSONArray("tracks").getJSONObject(0).getString("foreign_id");
-                                        spotifyURIList.add(songId);
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
+                                    JSONArray jArray = jObject.getJSONObject("response").getJSONArray("songs");
+                                    int length = jArray.length();
+                                    for (int i = 0; i < length; i++) {
+                                        try {
+                                            String songId = jArray.getJSONObject(i).getJSONArray("tracks").getJSONObject(0).getString("foreign_id");
+                                            spotifyURIList.add(songId);
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
                                     }
                                 }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
                             }
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
 
-                        if (spotifyURIList.isEmpty()) {
-                            queryAndPlay(pace - 10);
-                        }else {
-                            play(spotifyURIList);
-                        }
+                            if (spotifyURIList.isEmpty()) {
+                                queryAndPlay(pace - 10);
+                            } else {
+                                play(spotifyURIList);
+                            }
 
                         }
                     }.execute(buildEchoNestRequest(pace));
