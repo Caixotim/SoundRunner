@@ -1,23 +1,25 @@
 package com.example.goncalomatos.spotifysdktest;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 
 /**
  * Counts steps provided by StepDetector and passes the current
  * step count to the activity.
  */
-public class StepDisplayer implements StepListener {
+public class StepManager implements StepListener {
 
     private int mCount = 0;
-    private static StepDisplayer _instance = null;
+    private static StepManager _instance = null;
 
-    private StepDisplayer() {
+    private StepManager() {
         notifyListener();
     }
 
-    public static StepDisplayer instance () {
+    public static StepManager instance() {
         if (_instance == null) {
-            _instance = new StepDisplayer();
+            _instance = new StepManager();
         }
         return _instance;
     }
@@ -26,14 +28,25 @@ public class StepDisplayer implements StepListener {
         mCount = steps;
         notifyListener();
     }
+
+    @Override
     public void onStep() {
+        Log.d("StepManager", "onStep");
         mCount ++;
         notifyListener();
     }
-    public void reloadSettings() {
-        notifyListener();
-    }
+
+    @Override
     public void passValue() {
+        Log.d("StepManager", "passValue");
+
+    }
+    /*public void reloadSettings() {
+        notifyListener();
+    }*/
+
+    public void resetStepCount() {
+        mCount = 0;
     }
 
 

@@ -73,7 +73,7 @@ public class StepService extends Service {
         IntentFilter filter = new IntentFilter(Intent.ACTION_SCREEN_OFF);
         registerReceiver(mReceiver, filter);
 
-        mStepDisplayer = new StepDisplayer();
+        mStepDisplayer = StepDisplayer.instance();
         mStepDisplayer.setSteps(mSteps = mState.getInt("steps", 0));
         mStepDisplayer.addListener(mStepListener);
         mStepDetector.addStepListener(mStepDisplayer);

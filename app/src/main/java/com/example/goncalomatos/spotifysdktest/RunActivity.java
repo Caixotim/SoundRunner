@@ -10,13 +10,19 @@ import android.os.Bundle;
 import java.util.Timer;
 import java.util.TimerTask;
 import android.os.Handler;
+import android.util.Log;
 import android.widget.TextView;
 
 
-public class RunActivity extends Activity implements SensorEventListener{
+public class RunActivity extends Activity implements StepListener{
 
-    private SensorManager sm = null;
     private StepDetector stepDetector;
+
+    private SensorManager mSensorManager;
+    private Sensor mSensor;
+
+    //TEMP
+    private int steps = 0;
 
     //timer for log
     Timer timer;
@@ -28,15 +34,14 @@ public class RunActivity extends Activity implements SensorEventListener{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_run);
 
-        sm = (SensorManager)getSystemService(SENSOR_SERVICE);
+        mSensorManager = (SensorManager)getSystemService(SENSOR_SERVICE);
         stepDetector = new StepDetector();
-        stepDetector.addStepListener();
+        stepDetector.addStepListener(this);
+        registerDetector();
 
         timer = new Timer();
         initializeTimerTask();
         timer.schedule(timerTask, 0, 500);
-
-        //Log.d("RunActivity", Double.toString(accelDetector.getMagnitude()));
     }
 
 
@@ -47,16 +52,6 @@ public class RunActivity extends Activity implements SensorEventListener{
 
     protected void onResume() {
         super.onResume();
-    }
-
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
     }
 
     public void initializeTimerTask() {
@@ -72,5 +67,37 @@ public class RunActivity extends Activity implements SensorEventListener{
                 });
             }
         };
+    }
+
+    @Override
+    public void onStep() {
+        steps++;
+        Log.d("Run Activity: ", "Steps = " + Integer.toString(steps));
+    }
+
+    @Override
+    public void passValue() {
+
+    }
+
+    private float calculateVelocity (int steps) {
+        int userHeight = 180;
+        float stepDistance = userHeight * 0.414f;
+        float time = 0.5f;
+        return steps * stepDistance / time;
+    }
+
+
+
+    private void registerDetector() {
+        mSensor = mSensorManager.getDefaultSensor(
+                Sensor.TYPE_ACCELEROMETER);
+        mSensorManager.registerListener(stepDetector,
+                mSensor,
+                SensorManager.SENSOR_DELAY_FASTEST);
+    }
+
+    private void unregisterDetector() {
+        mSensorManager.unregisterListener(stepDetector);
     }
 }
