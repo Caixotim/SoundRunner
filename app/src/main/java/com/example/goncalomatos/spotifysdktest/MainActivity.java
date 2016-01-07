@@ -59,9 +59,15 @@ public class MainActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+        switch (id) {
+            case R.id.action_settings:
+                startActivity(new Intent(MainActivity.this, SettingsActivity.class));
+                break;
+            case R.id.action_statistics:
+                startActivity(new Intent(MainActivity.this, StatisticsActivity.class));
+                break;
         }
+
 
         return super.onOptionsItemSelected(item);
     }
