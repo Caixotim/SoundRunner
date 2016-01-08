@@ -7,22 +7,26 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 
+import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
+
 import android.os.Handler;
 import android.util.Log;
 import android.widget.TextView;
 
-
 public class RunActivity extends Activity implements StepListener{
 
     private StepDetector stepDetector;
+    private GPSDetector gpsDetector;
 
     private SensorManager mSensorManager;
     private Sensor mSensor;
 
     //TEMP
     private int steps = 0;
+    private long startTime;
 
     //timer for log
     Timer timer;
@@ -39,9 +43,16 @@ public class RunActivity extends Activity implements StepListener{
         stepDetector.addStepListener(this);
         registerDetector();
 
+        gpsDetector = new GPSDetector(this);
+
+        startTime = new Date().getTime();
+
         timer = new Timer();
+
         initializeTimerTask();
         timer.schedule(timerTask, 0, 500);
+
+
     }
 
 
@@ -54,15 +65,33 @@ public class RunActivity extends Activity implements StepListener{
         super.onResume();
     }
 
+    protected void onDestroy() {
+        unregisterDetector();
+        super.onDestroy();
+    }
+
     public void initializeTimerTask() {
         timerTask = new TimerTask() {
             public void run() {
                 //use a handler to run a toast that shows the current timestamp
                 handler.post(new Runnable() {
                     public void run() {
-                        //Run Button Logic
-                        TextView accelValue = (TextView) findViewById(R.id.acceleration);
 
+                        //float traveledDistance = gpsDetector.getTraveledDistance();
+                        long endTime = new Date().getTime();
+
+                        long deltaTime = endTime - startTime;
+                        //long deltaTimeInSeconds = TimeUnit.MILLISECONDS.toSeconds(deltaTime);
+
+                        //Run Button Logic
+                        TextView stepsValue = (TextView) findViewById(R.id.stepsValue);
+                        stepsValue.setText(Integer.toString(steps));
+
+                        //TextView distanceValue = (TextView) findViewById(R.id.distanceValue);
+                        //distanceValue.setText(Float.toString(traveledDistance));
+
+                        TextView velocityValue = (TextView) findViewById(R.id.velocityValue);
+                        velocityValue.setText(Float.toString(calculateVelocity(steps, 0, deltaTime)));
                     }
                 });
             }
@@ -75,16 +104,19 @@ public class RunActivity extends Activity implements StepListener{
         Log.d("Run Activity: ", "Steps = " + Integer.toString(steps));
     }
 
-    @Override
-    public void passValue() {
-
-    }
-
-    private float calculateVelocity (int steps) {
+    //Move this to a helper class
+    private float calculateVelocity (int steps, float stepDistanceParam, long deltaTime) {
         int userHeight = 180;
-        float stepDistance = userHeight * 0.414f;
-        float time = 0.5f;
-        return steps * stepDistance / time;
+        float stepDistance;
+        float deltaTimeInSeconds = TimeUnit.MILLISECONDS.toSeconds(deltaTime);
+
+        if (stepDistanceParam == 0) {
+            stepDistance = userHeight * 0.414f;
+        } else {
+            stepDistance = stepDistanceParam;
+        }
+
+        return (steps * stepDistance) / deltaTimeInSeconds;
     }
 
 

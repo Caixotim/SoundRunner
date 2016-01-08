@@ -6,20 +6,56 @@
     android:paddingBottom="@dimen/activity_vertical_margin"
     tools:context="com.example.goncalomatos.spotifysdktest.RunActivity">
 
-    <TextView android:text="Velocity" android:layout_width="wrap_content"
+    <TextView android:text="Velocity (m/s)" android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="189dp"
-        android:id="@+id/velocity" />
+        android:id="@+id/velocity"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="0"
-        android:id="@+id/acceleration"
+        android:id="@+id/velocityValue"
         android:layout_below="@+id/velocity"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:text="Distance (m)"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/distance"
+        android:layout_marginTop="34dp"
+        android:layout_below="@+id/velocityValue"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:text="Steps"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView"
+        android:layout_marginBottom="88dp"
+        android:layout_above="@+id/velocityValue"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:text="0"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/stepsValue"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:layout_alignTop="@+id/textView"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="22dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:text="0"
+        android:id="@+id/distanceValue"
+        android:layout_below="@+id/distance"
         android:layout_centerHorizontal="true" />
 
 </RelativeLayout>

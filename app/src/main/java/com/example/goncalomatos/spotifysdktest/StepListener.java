@@ -6,6 +6,5 @@ package com.example.goncalomatos.spotifysdktest;
  * @author Levente Bagi
  */
 public interface StepListener {
-    public void onStep();
-    public void passValue();
+    void onStep();
 }

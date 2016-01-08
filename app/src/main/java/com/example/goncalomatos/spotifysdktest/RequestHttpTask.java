@@ -30,7 +30,7 @@ public class RequestHttpTask extends AsyncTask<String, String, String> {
         String responseString = null;
         try {
             URL url = new URL(params[0]);
-            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();;
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
             try {
                 InputStream in = new BufferedInputStream(urlConnection.getInputStream());
                 responseString = readStream(in);
