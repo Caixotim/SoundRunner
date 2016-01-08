@@ -15,18 +15,18 @@
             android:title="@string/pref_title_display_name" />
         <ListPreference
             android:key="pref_sex"
-            android:title="gnm_Sex"
-            android:dialogTitle="gnm_Sex"
-            android:entries="@array/pref_sex"
-            android:entryValues="@array/pref_sex" />
+            android:title="@string/pref_sex"
+            android:dialogTitle="@string/pref_sex"
+            android:entries="@array/pref_sex_list"
+            android:entryValues="@array/pref_sex_list" />
         <EditTextPreference
             android:inputType="number"
             android:key="pref_weight"
-            android:title="gnm_Weight"/>
+            android:title="@string/pref_weight"/>
         <EditTextPreference
             android:inputType="numberDecimal"
             android:key="pref_height"
-            android:title="gnm_Height"/>
+            android:title="@string/pref_height"/>
     </PreferenceCategory>
 
 </PreferenceScreen>
