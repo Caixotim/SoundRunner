@@ -11,6 +11,9 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.jjoe64.graphview.GraphView;
+import android.graphics.Color;
+import com.jjoe64.graphview.LegendRenderer;
+import com.jjoe64.graphview.ValueDependentColor;
 import com.jjoe64.graphview.Viewport;
 import com.jjoe64.graphview.series.BarGraphSeries;
 import com.jjoe64.graphview.series.DataPoint;
@@ -40,6 +43,28 @@ public class StatisticsActivity extends AppCompatActivity {
         // data
         series = new BarGraphSeries<DataPoint>();
         graph.addSeries(series);
+
+        //Display legend
+        series.setTitle("Speed Chart");
+        series.setColor(Color.RED);
+
+        graph.getLegendRenderer().setVisible(true);
+        graph.getLegendRenderer().setAlign(LegendRenderer.LegendAlign.TOP);
+
+        series.setValueDependentColor(new ValueDependentColor<DataPoint>() {
+            @Override
+            public int get(DataPoint data) {
+                return Color.rgb((int) data.getX() * 200 / 20, (int) Math.abs(data.getY() * 200 / 10), 100);
+            }
+        });
+
+        series.setSpacing(50);
+
+        // draw values on top
+        series.setDrawValuesOnTop(true);
+        series.setValuesOnTopColor(Color.RED);
+        series.setValuesOnTopSize(15);
+
         // customize a little bit viewport
         Viewport viewport = graph.getViewport();
         viewport.setYAxisBoundsManual(true);

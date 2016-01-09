@@ -11,7 +11,7 @@
         android:layout_height="wrap_content"
         android:textStyle="bold"
         android:id="@+id/textStatistics"
-        android:layout_gravity="center_horizontal"
+        android:layout_gravity="right"
         android:textSize="30sp"
         android:textColor="#000000"
         android:textIsSelectable="false"
@@ -29,7 +29,7 @@
         android:paddingBottom="25sp"
         android:id="@+id/texSpeed" />
 
-    <TextView
+    <!--TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/txtHigh"
@@ -40,9 +40,9 @@
         android:paddingTop="10dp"
         android:gravity="center"
         android:width="15dp"
-        android:height="15dp" />
+        android:height="15dp" /-->
 
-    <TextView
+    <!--TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/txtLow"
@@ -53,9 +53,9 @@
         android:paddingTop="10dp"
         android:gravity="right"
         android:width="15dp"
-        android:height="15dp" />
+        android:height="15dp" /-->
 
-    <TextView
+    <!--TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
@@ -65,22 +65,22 @@
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:paddingBottom="25sp"
-        android:id="@+id/textkilometers" />
+        android:id="@+id/textkilometers" /-->
 
     <!-- we add graph view to display -->
     <com.jjoe64.graphview.GraphView
         android:id="@+id/graph"
         android:layout_width="match_parent"
-        android:layout_height="224dp" />
+        android:layout_height="244dp" />
 
-    <Button
+    <!--Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Back"
         android:id="@+id/buttonStatisticsBack"
         android:layout_gravity="right"
         android:textSize="20dp"
-        android:textColor="#000000" />
+        android:textColor="#000000" /-->
 
 
 
