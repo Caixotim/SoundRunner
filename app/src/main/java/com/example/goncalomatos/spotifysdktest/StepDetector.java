@@ -71,7 +71,6 @@ public class StepDetector implements SensorEventListener
                         boolean isNotContra = (mLastMatch != 1 - extType);
 
                         if (isAlmostAsLargeAsPrevious && isPreviousLargeEnough && isNotContra) {
-                            Log.d(TAG, "step");
                             for (StepListener stepListener : mStepListeners) {
                                 stepListener.onStep();
                             }

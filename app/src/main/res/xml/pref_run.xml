@@ -1,0 +1,21 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <PreferenceCategory
+        android:title="Personal Data">
+        <!-- NOTE: EditTextPreference accepts EditText attributes. -->
+        <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
+        <ListPreference
+            android:key="pref_sensitivity"
+            android:title="@string/pref_sensitivity"
+            android:dialogTitle="@string/pref_sensitivity"
+            android:entries="@array/pref_sensitivity_list"
+            android:entryValues="@array/pref_sensitivity_values_list" />
+        <ListPreference
+            android:key="pref_style"
+            android:title="@string/pref_style"
+            android:dialogTitle="@string/pref_style"
+            android:entries="@array/pref_styles"
+            android:entryValues="@array/pref_styles" />
+    </PreferenceCategory>
+
+</PreferenceScreen>

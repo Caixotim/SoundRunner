@@ -45,7 +45,8 @@
             android:name=".RunActivity"
             android:label="@string/title_activity_run"
             android:parentActivityName=".MainActivity"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:launchMode="singleTask">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.goncalomatos.spotifysdktest.MainActivity" />

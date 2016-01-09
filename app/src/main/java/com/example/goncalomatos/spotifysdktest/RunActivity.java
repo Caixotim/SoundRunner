@@ -1,14 +1,17 @@
 package com.example.goncalomatos.spotifysdktest;
 
+import android.app.Notification;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -85,6 +88,7 @@ public class RunActivity extends AppCompatActivity {
         Button skipButton = (Button) findViewById(R.id.skip_button);
         skipButton.setEnabled(true);
         // TODO: 04/01/16  this should be a foreground service
+
         startService(intent);
     }
 
@@ -139,12 +143,17 @@ public class RunActivity extends AppCompatActivity {
     @Override
     public void onPause() {
         super.onPause();
-        unregisterReceiver(broadcastReceiver);
     }
 
     @Override
     public void onStop(){
         super.onStop();
+    }
+
+    @Override
+    public void onDestroy(){
+        super.onDestroy();
+        unregisterReceiver(broadcastReceiver);
         stopRun();
     }
 
@@ -157,14 +166,24 @@ public class RunActivity extends AppCompatActivity {
     private void handleSensorData(Intent sensorDataIntent)
     {
         double speed = sensorDataIntent.getDoubleExtra("speed", 0);
-        Log.d("RUN", "" + speed);
+        int numSteps = sensorDataIntent.getIntExtra("numSteps", 0);
+        double length = sensorDataIntent.getDoubleExtra("length", 0);
+
+        Log.d("RUN", "" + (speed * 3.6));
+        Log.d("RUN", "numSteps " + numSteps);
+        TextView debug = (TextView) findViewById(R.id.debug);
+
+        String text = "" + (speed * 3.6) + " - " + length + " numSteps - " + numSteps;
+        debug.setText(text);
+
+        double speedKm = speed * 3.6;
 
         //TODO: strategies and stuff
-        if (speed > lastSpeed + 50 || speed < lastSpeed - 50 ) {
+        if (speed > lastSpeed + (2 /3.6) || speed < lastSpeed - (2/3.6) ) {
             Log.d("RunActivity", "changing pace");
 
             if(spotifyHelper != null && isSpotifyAuthenticated) {
-                spotifyHelper.queryAndPlay(speed);
+                spotifyHelper.queryAndPlay(speed * 3.6 * 17);
             }
         }
         lastSpeed = speed;

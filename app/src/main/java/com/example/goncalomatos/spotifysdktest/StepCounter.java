@@ -3,6 +3,7 @@ package com.example.goncalomatos.spotifysdktest;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 public class StepCounter implements StepListener{
@@ -17,9 +18,18 @@ public class StepCounter implements StepListener{
 
         mSensorManager = (SensorManager)context.getSystemService(Context.SENSOR_SERVICE);
 
+        float sensitivity = Float.parseFloat(PreferenceManager
+                .getDefaultSharedPreferences(context)
+                .getString("pref_sensitivity", "20"));
+
         stepDetector = new StepDetector();
+        stepDetector.setSensitivity(sensitivity);
         stepDetector.addStepListener(this);
         registerStepDetector();
+    }
+
+    public void unregister(){
+        mSensorManager.unregisterListener(stepDetector);
     }
 
     @Override

@@ -3,6 +3,7 @@ package com.example.goncalomatos.spotifysdktest;
 import android.Manifest;
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.location.Criteria;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -14,6 +15,9 @@ import java.util.ArrayList;
 
 public class GPSDetector implements LocationListener
 {
+    private static final long INTERVAL = 5000;
+    private static final float MIN_DISTANCE = 2;
+
     private Location startLocation = null;
     private Location lastLocation = null;
     private boolean firstCall;
@@ -26,15 +30,15 @@ public class GPSDetector implements LocationListener
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (context.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
                     context.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+                locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, INTERVAL, MIN_DISTANCE, this);
             }
         } else {
-            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
+            locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, INTERVAL, MIN_DISTANCE, this);
         }
     }
 
     public void addGPSLocationListener(GPSLocationListener gl) {
-        Log.d("StepDetector", "addGPSLocationListener");
+        Log.d("GPSDetector", "addGPSLocationListener");
         mGPSLocationListeners.add(gl);
     }
 

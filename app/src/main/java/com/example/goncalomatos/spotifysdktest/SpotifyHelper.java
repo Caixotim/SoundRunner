@@ -1,6 +1,7 @@
 package com.example.goncalomatos.spotifysdktest;
 
 import android.app.Activity;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
@@ -32,6 +33,7 @@ public class SpotifyHelper implements
     private AuthenticationResponse authenticationResponse;
     private Player mPlayer;
     private Config playerConfig;
+    private boolean isPaused = false;
 
     public SpotifyHelper(RunActivity activity, AuthenticationResponse authResponse){
         bindedActivity = activity;
@@ -54,6 +56,9 @@ public class SpotifyHelper implements
     }
 
     public void play(String spotifyUri){
+        if(isPaused) {
+            isPaused = false;
+        }
         if (mPlayer == null)
         {
             Log.e("SpotifyHelper", "Spotify player not yet initiliazed");
@@ -63,10 +68,14 @@ public class SpotifyHelper implements
     }
 
     public void pause() {
+        isPaused = true;
         mPlayer.pause();
     }
 
     public void play(List<String> spotifyUriList){
+        if (isPaused) {
+            isPaused = false;
+        }
         if (mPlayer == null)
         {
             Log.e("SpotifyHelper", "Spotify player not yet initiliazed");
@@ -79,32 +88,38 @@ public class SpotifyHelper implements
         mPlayer.skipToNext();
     }
 
-    protected String buildEchoNestRequest(double pace){
-        return "http://developer.echonest.com/api/v4/playlist/static?api_key=" + ECHONEST_KEY
-                + "&mood=fun" +
+    protected String buildEchoNestRequest(double pace, String style){
+        return "http://developer.echonest.com/api/v4/playlist/static?api_key=" + ECHONEST_KEY +
+                "&style=" + style +
                 "&min_tempo=" + pace +
                 "&max_tempo=" + (pace + 50) +
                 "&bucket=id:spotify" +
                 "&bucket=tracks" +
                 "&results=10" +
                 "&limit=true" +
+                "&min_duration=100" +
                 "&artist_min_familiarity=.2" +
                 "&type=artist-description";
     }
 
     public void queryAndPlay(final double pace){
+        Log.d("cenas", "query and play");
         mPlayer.getPlayerState(new PlayerStateCallback() {
             @Override
             public void onPlayerState(PlayerState playerState) {
-                if (!playerState.playing && playerState.positionInMs > 0) {
+                if (isPaused) {
                     mPlayer.resume();
+                    isPaused = false;
                 } else {
+                    String style = PreferenceManager
+                            .getDefaultSharedPreferences(bindedActivity)
+                            .getString("pref_style", "rock");
                     new RequestHttpTask() {
                         @Override
                         protected void onPostExecute(String result) {
                             super.onPostExecute(result);
                             List<String> spotifyURIList = new ArrayList<String>();
-
+                            Log.d("cenas", "got song");
                             //getSong
                             try {
                                 if (result != null) {
@@ -126,13 +141,13 @@ public class SpotifyHelper implements
                             }
 
                             if (spotifyURIList.isEmpty()) {
-                                queryAndPlay(pace - 10);
+                                //queryAndPlay(pace - 20);
                             } else {
                                 play(spotifyURIList);
                             }
 
                         }
-                    }.execute(buildEchoNestRequest(pace));
+                    }.execute(buildEchoNestRequest(pace, style));
                 }
             }
         });
@@ -146,7 +161,7 @@ public class SpotifyHelper implements
 
     @Override
     public void onLoggedOut() {
-        Log.d("MainActivity", "User logged out");
+        //Log.d("MainActivity", "User logged out");
     }
 
     @Override
@@ -161,7 +176,7 @@ public class SpotifyHelper implements
 
     @Override
     public void onConnectionMessage(String message) {
-        Log.d("MainActivity", "Received connection message: " + message);
+        //Log.d("MainActivity", "Received connection message: " + message);
     }
 
     public String buildEchoNestSpotifyTrackInfo(String spotifyURI){
@@ -187,13 +202,13 @@ public class SpotifyHelper implements
                         String artist = jsonSong.getString("artist_name");
 
                         bindedActivity.updateTrackInfo(trackName + " by " + artist);
-                    } catch (JSONException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
             }.execute(buildEchoNestSpotifyTrackInfo(playerState.trackUri));
         }
-        Log.d("MainActivity", "Playback event received: " + eventType.name());
+        //Log.d("MainActivity", "Playback event received: " + eventType.name());
     }
 
     @Override
