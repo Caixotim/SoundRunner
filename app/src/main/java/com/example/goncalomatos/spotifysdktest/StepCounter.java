@@ -3,6 +3,7 @@ package com.example.goncalomatos.spotifysdktest;
 import android.content.Context;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
+import android.util.Log;
 
 public class StepCounter implements StepListener{
 
@@ -14,7 +15,8 @@ public class StepCounter implements StepListener{
     public StepCounter(Context context) {
         steps = 0;
 
-        mSensorManager = (SensorManager)context.getSystemService(context.SENSOR_SERVICE);
+        mSensorManager = (SensorManager)context.getSystemService(Context.SENSOR_SERVICE);
+
         stepDetector = new StepDetector();
         stepDetector.addStepListener(this);
         registerStepDetector();

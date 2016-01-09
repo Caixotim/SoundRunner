@@ -28,7 +28,7 @@ public class RunActivity extends AppCompatActivity {
 
     private Intent intent;
     private SpotifyHelper spotifyHelper;
-    private int lastPace = -50;
+    private double lastSpeed = -50;
     private boolean isSpotifyAuthenticated;
     private boolean isUserRunning;
 
@@ -156,18 +156,18 @@ public class RunActivity extends AppCompatActivity {
 
     private void handleSensorData(Intent sensorDataIntent)
     {
-        int pace = sensorDataIntent.getIntExtra("pace", 200);
-        Log.d("RUN", "" + pace);
+        double speed = sensorDataIntent.getDoubleExtra("speed", 0);
+        Log.d("RUN", "" + speed);
 
         //TODO: strategies and stuff
-        if (pace > lastPace + 50 || pace < lastPace - 50 ) {
+        if (speed > lastSpeed + 50 || speed < lastSpeed - 50 ) {
             Log.d("RunActivity", "changing pace");
 
             if(spotifyHelper != null && isSpotifyAuthenticated) {
-                spotifyHelper.queryAndPlay(pace);
+                spotifyHelper.queryAndPlay(speed);
             }
         }
-        lastPace = pace;
+        lastSpeed = speed;
     }
 
 

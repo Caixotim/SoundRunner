@@ -79,7 +79,7 @@ public class SpotifyHelper implements
         mPlayer.skipToNext();
     }
 
-    protected String buildEchoNestRequest(int pace){
+    protected String buildEchoNestRequest(double pace){
         return "http://developer.echonest.com/api/v4/playlist/static?api_key=" + ECHONEST_KEY
                 + "&mood=fun" +
                 "&min_tempo=" + pace +
@@ -92,7 +92,7 @@ public class SpotifyHelper implements
                 "&type=artist-description";
     }
 
-    public void queryAndPlay(final int pace){
+    public void queryAndPlay(final double pace){
         mPlayer.getPlayerState(new PlayerStateCallback() {
             @Override
             public void onPlayerState(PlayerState playerState) {

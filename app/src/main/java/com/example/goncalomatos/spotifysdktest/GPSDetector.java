@@ -69,11 +69,11 @@ public class GPSDetector implements LocationListener
 
     }
 
-    public float getTraveledDistance () { //get distance in meters
+    public double getTraveledDistance () { //get distance in meters
         if (startLocation != null && lastLocation != null) {
             return startLocation.distanceTo(lastLocation);
         }
-        return 2;
+        return 0;
     }
 
     public void resetLocation () {
