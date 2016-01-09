@@ -8,10 +8,11 @@ import android.util.Log;
 
 import java.util.Random;
 
-public class MockService extends Service {
+public class MockService extends Service implements GPSLocationListener{
     private static final String TAG = "BroadcastService";
     public static final String BROADCAST_ACTION = "com.soundRunner.Mock";
     private final Handler handler = new Handler();
+    private GPSDetector gpsDetector;
     Intent intent;
     int counter = 0;
 
@@ -21,6 +22,8 @@ public class MockService extends Service {
     public void onCreate() {
         super.onCreate();
 
+        gpsDetector = new GPSDetector(getApplicationContext());
+        gpsDetector.addGPSLocationListener(this);
         intent = new Intent(BROADCAST_ACTION);
     }
 
@@ -34,8 +37,8 @@ public class MockService extends Service {
 
     private Runnable sendUpdatesToUI = new Runnable() {
         public void run() {
-            DisplayLoggingInfo();
-            handler.postDelayed(this, INTERVAL);
+        DisplayLoggingInfo();
+        handler.postDelayed(this, INTERVAL);
         }
     };
 
@@ -59,5 +62,10 @@ public class MockService extends Service {
     public void onDestroy() {
         handler.removeCallbacks(sendUpdatesToUI);
         super.onDestroy();
+    }
+
+    @Override
+    public void onLocationChange() {
+        //TODO: IMPLEMENT
     }
 }

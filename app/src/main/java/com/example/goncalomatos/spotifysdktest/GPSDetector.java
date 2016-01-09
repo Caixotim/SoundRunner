@@ -10,11 +10,14 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
+import java.util.ArrayList;
+
 public class GPSDetector implements LocationListener
 {
     private Location startLocation = null;
     private Location lastLocation = null;
     private boolean firstCall;
+    private ArrayList<GPSLocationListener> mGPSLocationListeners = new ArrayList<>();
 
     public GPSDetector(Context context) {
         firstCall = true;
@@ -30,6 +33,12 @@ public class GPSDetector implements LocationListener
         }
     }
 
+    public void addGPSLocationListener(GPSLocationListener gl) {
+        Log.d("StepDetector", "addGPSLocationListener");
+        mGPSLocationListeners.add(gl);
+    }
+
+
     @Override
     public void onLocationChanged(Location location) {
         if (firstCall) {
@@ -39,6 +48,9 @@ public class GPSDetector implements LocationListener
         } else {
             lastLocation = location;
             Log.d("GPSDetector", "lastLocation: \n" + "latitude = " + Double.toString(startLocation.getLatitude()) + "\nlongitude = " + Double.toString(startLocation.getLongitude()));
+        }
+        for (GPSLocationListener gpsLocationListener : mGPSLocationListeners) {
+            gpsLocationListener.onLocationChange();
         }
     }
 
