@@ -211,7 +211,9 @@ public class RunActivity extends AppCompatActivity {
         TextView debug = (TextView) findViewById(R.id.debug);
 
         String text = "" + (speed * 3.6) + " - " + length + " numSteps - " + numSteps;
-        text += "\n MaxSpeed " + maxSpeed + "\n MaxLength " + maxStepLength;
+        text += "\nMaxSpeed " + maxSpeed +
+                "\nMaxLength " + maxStepLength +
+                "\nTotalSteps" + sensorDataIntent.getIntExtra("totalSteps", 0);
         debug.setText(text);
 
         double speedKm = speed * 3.6;
@@ -221,7 +223,7 @@ public class RunActivity extends AppCompatActivity {
             Log.d("RunActivity", "changing pace");
 
             if(spotifyHelper != null && isSpotifyAuthenticated) {
-                spotifyHelper.queryAndPlay(speed * 3.6 * 17);
+                spotifyHelper.queryAndPlay(speedKm * 17);
             }
         }
         lastSpeed = speed;

@@ -20,8 +20,8 @@ import java.util.ArrayList;
 
 public class GPSDetector implements LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener
 {
-    private static final long INTERVAL = 5000;
-    private static final long MIN_INTERVAL = 2000;
+    private static final long INTERVAL = 15000;
+    private static final long MIN_INTERVAL = 10000;
     private static final float MIN_DISTANCE = 2;
     private static final int MIN_ACCURACY = 5;
 

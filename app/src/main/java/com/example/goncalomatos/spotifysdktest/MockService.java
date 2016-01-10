@@ -73,6 +73,7 @@ public class MockService extends Service implements GPSLocationListener{
             Log.d("cenas", "diffSteps:" + diffSteps);
             lastSteps = currentSteps;
             intent.putExtra("numSteps", diffSteps);
+            intent.putExtra("totalSteps", currentSteps);
             intent.putExtra("speed", speed);
             intent.putExtra("length", stepLength);
             sendBroadcast(intent);
