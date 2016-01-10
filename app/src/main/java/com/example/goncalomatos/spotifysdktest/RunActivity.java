@@ -31,6 +31,8 @@ public class RunActivity extends AppCompatActivity {
     private static final int REQUEST_CODE = 1337;
     private static final int PERMISSION_LOCATION = 2;
 
+    private double maxSpeed = 0;
+    private double maxStepLength = 0;
     private Intent intent;
     private SpotifyHelper spotifyHelper;
     private double lastSpeed = -50;
@@ -194,11 +196,22 @@ public class RunActivity extends AppCompatActivity {
         int numSteps = sensorDataIntent.getIntExtra("numSteps", 0);
         double length = sensorDataIntent.getDoubleExtra("length", 0);
 
+        Log.d("gnm", "speed " + speed + "vs maxSpeed " + maxSpeed);
+        Log.d("gnm", "length " + length + "vs maxLength " + maxStepLength);
+        if(speed > maxSpeed ){
+            maxSpeed = speed;
+        }
+
+        if(length > maxStepLength ){
+            maxStepLength = length;
+        }
+
         Log.d("RUN", "" + (speed * 3.6));
         Log.d("RUN", "numSteps " + numSteps);
         TextView debug = (TextView) findViewById(R.id.debug);
 
         String text = "" + (speed * 3.6) + " - " + length + " numSteps - " + numSteps;
+        text += "\n MaxSpeed " + maxSpeed + "\n MaxLength " + maxStepLength;
         debug.setText(text);
 
         double speedKm = speed * 3.6;

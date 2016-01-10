@@ -90,6 +90,7 @@ public class MockService extends Service implements GPSLocationListener{
         Log.d("cenas", "destroy le service");
         handler.removeCallbacks(calcSpeed);
         stepCounter.unregister();
+        gpsDetector.disconnect();
         super.onDestroy();
     }
 
@@ -97,8 +98,12 @@ public class MockService extends Service implements GPSLocationListener{
     public void onLocationChange() {
         Log.d("cenas", "location changed");
         //update stepLength
+
         int currentSteps = stepCounter.getSteps();
         int diff = currentSteps -  lastStepsSinceGPSLocation;
+        if (diff == 0){
+            return;
+        }
         double distance = gpsDetector.getTraveledDistance();
         if (distance != -1) {
             stepLength = distance / currentSteps;
