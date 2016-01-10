@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
@@ -279,8 +280,12 @@ public class RunActivity extends AppCompatActivity implements OnMapReadyCallback
         lastSpeed = speedKm;
         double lastSpeedKm = lastSpeed * 3.6;
 
+        float pace_threshold = Float.parseFloat(PreferenceManager
+                .getDefaultSharedPreferences(this)
+                .getString("pref_pace_threshold", "3"));
+
         //TODO: strategies and stuff
-        if (speedKm > lastSpeedKm + 2 || speedKm < lastSpeedKm - 2) {
+        if (speedKm > lastSpeedKm + pace_threshold || speedKm < lastSpeedKm - pace_threshold) {
             Log.d("RunActivity", "changing pace");
 
             if(spotifyHelper != null && isSpotifyAuthenticated) {

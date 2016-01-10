@@ -16,6 +16,12 @@
             android:dialogTitle="@string/pref_style"
             android:entries="@array/pref_styles"
             android:entryValues="@array/pref_styles" />
+        <EditTextPreference
+            android:inputType="number"
+            android:numeric="decimal"
+            android:key="pref_pace_threshold"
+            android:defaultValue="3"
+            android:title="@string/pref_pace_threshold" />
     </PreferenceCategory>
 
 </PreferenceScreen>

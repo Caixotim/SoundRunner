@@ -1329,5 +1329,6 @@
     <string name="pref_sensitivity">Sensitivity</string>
     <string name="pref_style">Music Style</string>
     <string name="title_activity_maps">Map</string>
+    <string name="pref_pace_threshold">Music threshold</string>
 
 </resources>

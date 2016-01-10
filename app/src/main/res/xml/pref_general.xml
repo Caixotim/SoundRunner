@@ -21,10 +21,12 @@
             android:entryValues="@array/pref_sex_list" />
         <EditTextPreference
             android:inputType="number"
+            android:numeric="decimal"
             android:key="pref_weight"
             android:title="@string/pref_weight"/>
         <EditTextPreference
-            android:inputType="numberDecimal"
+            android:inputType="number"
+            android:numeric="integer"
             android:key="pref_height"
             android:title="@string/pref_height"/>
     </PreferenceCategory>

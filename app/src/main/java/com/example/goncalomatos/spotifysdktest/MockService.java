@@ -26,7 +26,7 @@ public class MockService extends Service implements GPSLocationListener{
     private int lastSteps = 0;
     private int lastStepsSinceGPSLocation = 0;
 
-    private static final int INTERVAL = 5000;
+    private static final int INTERVAL = 7500;
 
     @Override
     public void onCreate() {
