@@ -1,17 +1,18 @@
 package com.example.goncalomatos.spotifysdktest;
 
-import android.app.Notification;
+import android.Manifest;
+import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.graphics.Bitmap;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.NotificationCompat;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
@@ -28,6 +29,7 @@ public class RunActivity extends AppCompatActivity {
     private static final String ECHONEST_KEY = "BM5IMCRRSRYJMLZVK";
     private static final String REDIRECT_URI = "my-first-spotify-app://callback";
     private static final int REQUEST_CODE = 1337;
+    private static final int PERMISSION_LOCATION = 2;
 
     private Intent intent;
     private SpotifyHelper spotifyHelper;
@@ -81,6 +83,13 @@ public class RunActivity extends AppCompatActivity {
         isSpotifyAuthenticated = false;
         isUserRunning = false;
         startSpotifyAuth();
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (this.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED ||
+                    this.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_LOCATION);
+            }
+        }
     }
 
     private void startRun(){
@@ -111,6 +120,22 @@ public class RunActivity extends AppCompatActivity {
 
         AuthenticationClient.openLoginActivity(this, REQUEST_CODE, request);
     }
+
+    @Override
+    @TargetApi(Build.VERSION_CODES.M)
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSION_LOCATION: {
+                if(grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED
+                        && grantResults[1] == PackageManager.PERMISSION_GRANTED ) {
+                    Log.d("gnm", "location get!");
+                }
+            }
+        }
+    }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent intent) {

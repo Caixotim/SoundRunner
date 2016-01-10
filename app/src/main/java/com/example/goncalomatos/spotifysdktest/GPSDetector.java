@@ -74,10 +74,10 @@ public class GPSDetector implements LocationListener
     }
 
     public double getTraveledDistance () { //get distance in meters
-        if (startLocation != null && lastLocation != null) {
+        if (startLocation != null && lastLocation != null && !firstCall) {
             return startLocation.distanceTo(lastLocation);
         }
-        return 0;
+        return -1;
     }
 
     public void resetLocation () {

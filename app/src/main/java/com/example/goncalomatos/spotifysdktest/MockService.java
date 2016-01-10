@@ -100,11 +100,13 @@ public class MockService extends Service implements GPSLocationListener{
         int currentSteps = stepCounter.getSteps();
         int diff = currentSteps -  lastStepsSinceGPSLocation;
         double distance = gpsDetector.getTraveledDistance();
+        if (distance != -1) {
+            stepLength = distance / currentSteps;
+            gpsDetector.resetLocation();
+        }
         lastStepsSinceGPSLocation = currentSteps;
 
-        stepLength = distance / currentSteps;
         Log.d("cenas", "" + distance);
         Log.d("cenas", "" + currentSteps);
-        gpsDetector.resetLocation();
     }
 }
