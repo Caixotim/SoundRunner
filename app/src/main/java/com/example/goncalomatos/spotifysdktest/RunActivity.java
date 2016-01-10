@@ -33,6 +33,7 @@ import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
 
 import java.text.DecimalFormat;
+import java.util.Date;
 import java.util.List;
 
 public class RunActivity extends AppCompatActivity implements OnMapReadyCallback {
@@ -56,6 +57,7 @@ public class RunActivity extends AppCompatActivity implements OnMapReadyCallback
     private boolean isUserRunning;
     private Polyline polyline;
     private int index;
+    private Run currentRun;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,6 +127,7 @@ public class RunActivity extends AppCompatActivity implements OnMapReadyCallback
         skipButton.setEnabled(true);
         startService(intent);
         spotifyHelper.queryAndPlay(0);
+        currentRun = new Run();
     }
 
     private void stopRun(){
@@ -133,6 +136,8 @@ public class RunActivity extends AppCompatActivity implements OnMapReadyCallback
         skipButton.setEnabled(false);
         stopService(intent);
         spotifyHelper.pause();
+
+        currentRun.finishRun();
     }
 
     private void startSpotifyAuth() {
@@ -253,9 +258,6 @@ public class RunActivity extends AppCompatActivity implements OnMapReadyCallback
         int numSteps = sensorDataIntent.getIntExtra("numSteps", 0);
         double length = sensorDataIntent.getDoubleExtra("length", 0);
 
-
-        //Log.d("gnm", "speed " + speed + "vs maxSpeed " + maxSpeed);
-        //Log.d("gnm", "length " + length + "vs maxLength " + maxStepLength);
         if(speed > maxSpeed ){
             maxSpeed = speed;
         }
@@ -264,8 +266,6 @@ public class RunActivity extends AppCompatActivity implements OnMapReadyCallback
             maxStepLength = length;
         }
 
-        //Log.d("RUN", "" + (speed * 3.6));
-        //Log.d("RUN", "numSteps " + numSteps);
         TextView debug = (TextView) findViewById(R.id.debug);
 
         double speedKm = speed * 3.6;
@@ -293,6 +293,11 @@ public class RunActivity extends AppCompatActivity implements OnMapReadyCallback
             }
         }
         lastSpeed = speed;
+        //long _time, int _steps, double _speed
+        Date currDate = new Date();
+        long delta = currentRun.getStartDate().getTime() - currDate.getTime();
+        RunStat stat = new RunStat(delta, numSteps, speedKm);
+        currentRun.addStat(stat);
     }
 
 

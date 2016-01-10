@@ -45,7 +45,6 @@ public class GPSDetector implements LocationListener, GoogleApiClient.Connection
                     .build();
             mGoogleApiClient.connect();
         }
-
     }
 
     public void addGPSLocationListener(GPSLocationListener gl) {
