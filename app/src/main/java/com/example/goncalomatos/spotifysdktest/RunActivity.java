@@ -19,11 +19,24 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.spotify.sdk.android.authentication.AuthenticationClient;
 import com.spotify.sdk.android.authentication.AuthenticationRequest;
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
 
-public class RunActivity extends AppCompatActivity {
+import java.text.DecimalFormat;
+import java.util.List;
+
+public class RunActivity extends AppCompatActivity implements OnMapReadyCallback {
+
+    private GoogleMap mMap;
 
     private static final String CLIENT_ID = "68528c82f0a14b1da759976535533f48";
     private static final String ECHONEST_KEY = "BM5IMCRRSRYJMLZVK";
@@ -36,8 +49,12 @@ public class RunActivity extends AppCompatActivity {
     private Intent intent;
     private SpotifyHelper spotifyHelper;
     private double lastSpeed = -50;
+    private int lastSteps = 0;
+    private double lastLength = 0;
     private boolean isSpotifyAuthenticated;
     private boolean isUserRunning;
+    private Polyline polyline;
+    private int index;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +62,8 @@ public class RunActivity extends AppCompatActivity {
         setContentView(R.layout.activity_run);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        index = 0;
 
         ActionBar actionBar = getSupportActionBar();
         if(actionBar != null) {
@@ -92,15 +111,19 @@ public class RunActivity extends AppCompatActivity {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, PERMISSION_LOCATION);
             }
         }
+
+        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMapAsync(this);
     }
 
     private void startRun(){
         isUserRunning = true;
         Button skipButton = (Button) findViewById(R.id.skip_button);
         skipButton.setEnabled(true);
-        // TODO: 04/01/16  this should be a foreground service
-
         startService(intent);
+        spotifyHelper.queryAndPlay(0);
     }
 
     private void stopRun(){
@@ -150,21 +173,53 @@ public class RunActivity extends AppCompatActivity {
             if (response.getType() == AuthenticationResponse.Type.TOKEN) {
                 spotifyHelper = new SpotifyHelper(RunActivity.this, response);
                 isSpotifyAuthenticated = true;
+
             }
         }
     }
 
-    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+    private BroadcastReceiver stepBroadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-        handleSensorData(intent);
+            handleSensorData(intent);
         }
     };
+
+    private BroadcastReceiver locationBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            handleLocationData(intent);
+        }
+    };
+
+    private void handleLocationData(Intent intent) {
+        Log.d("gnm", "handleLocation");
+        double latitude = intent.getDoubleExtra("latitude", 0);
+        double longitude = intent.getDoubleExtra("longitude", 0);
+
+        index++;
+
+        LatLng lastLocation = new LatLng(latitude, longitude);
+        if (polyline == null) {
+            polyline = mMap.addPolyline(new PolylineOptions().add(lastLocation));
+        }else {
+            List<LatLng> list = polyline.getPoints();
+            list.add(lastLocation);
+
+            polyline.setPoints(list);
+        }
+
+        DecimalFormat df = new DecimalFormat("#.##");
+        String text = lastSteps + "-" + df.format(lastSpeed) + "-" + df.format(lastLength);
+        mMap.addMarker(new MarkerOptions().position(lastLocation).title("" + index).snippet(text));
+        mMap.animateCamera(CameraUpdateFactory.newLatLng(lastLocation));
+    }
 
     @Override
     public void onResume() {
         super.onResume();
-        registerReceiver(broadcastReceiver, new IntentFilter(MockService.BROADCAST_ACTION));
+        registerReceiver(stepBroadcastReceiver, new IntentFilter(MockService.STEP_BROADCAST_ACTION));
+        registerReceiver(locationBroadcastReceiver, new IntentFilter(MockService.LOCATION_BROADCAST_ACTION));
     }
 
     @Override
@@ -180,7 +235,8 @@ public class RunActivity extends AppCompatActivity {
     @Override
     public void onDestroy(){
         super.onDestroy();
-        unregisterReceiver(broadcastReceiver);
+        unregisterReceiver(stepBroadcastReceiver);
+        unregisterReceiver(locationBroadcastReceiver);
         stopRun();
     }
 
@@ -196,8 +252,9 @@ public class RunActivity extends AppCompatActivity {
         int numSteps = sensorDataIntent.getIntExtra("numSteps", 0);
         double length = sensorDataIntent.getDoubleExtra("length", 0);
 
-        Log.d("gnm", "speed " + speed + "vs maxSpeed " + maxSpeed);
-        Log.d("gnm", "length " + length + "vs maxLength " + maxStepLength);
+
+        //Log.d("gnm", "speed " + speed + "vs maxSpeed " + maxSpeed);
+        //Log.d("gnm", "length " + length + "vs maxLength " + maxStepLength);
         if(speed > maxSpeed ){
             maxSpeed = speed;
         }
@@ -206,20 +263,24 @@ public class RunActivity extends AppCompatActivity {
             maxStepLength = length;
         }
 
-        Log.d("RUN", "" + (speed * 3.6));
-        Log.d("RUN", "numSteps " + numSteps);
+        //Log.d("RUN", "" + (speed * 3.6));
+        //Log.d("RUN", "numSteps " + numSteps);
         TextView debug = (TextView) findViewById(R.id.debug);
 
-        String text = "" + (speed * 3.6) + " - " + length + " numSteps - " + numSteps;
-        text += "\nMaxSpeed " + maxSpeed +
+        double speedKm = speed * 3.6;
+        String text = "" + speedKm + " - " + length + " numSteps - " + numSteps;
+        text += "\nMaxSpeed " + (maxSpeed * 3.6) +
                 "\nMaxLength " + maxStepLength +
                 "\nTotalSteps" + sensorDataIntent.getIntExtra("totalSteps", 0);
         debug.setText(text);
 
-        double speedKm = speed * 3.6;
+        lastSteps = numSteps;
+        lastLength = length;
+        lastSpeed = speedKm;
+        double lastSpeedKm = lastSpeed * 3.6;
 
         //TODO: strategies and stuff
-        if (speed > lastSpeed + (2 /3.6) || speed < lastSpeed - (2/3.6) ) {
+        if (speedKm > lastSpeedKm + 2 || speedKm < lastSpeedKm - 2) {
             Log.d("RunActivity", "changing pace");
 
             if(spotifyHelper != null && isSpotifyAuthenticated) {
@@ -230,4 +291,20 @@ public class RunActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        boolean check = false;
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (this.checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED ||
+                    this.checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                check = true;
+            }
+        } else {
+            check = true;
+        }
+        if (check) {
+            mMap.setMyLocationEnabled(true);
+        }
+    }
 }

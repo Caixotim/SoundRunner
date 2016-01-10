@@ -21,9 +21,9 @@ import java.util.ArrayList;
 public class GPSDetector implements LocationListener, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener
 {
     private static final long INTERVAL = 15000;
-    private static final long MIN_INTERVAL = 10000;
+    private static final long MIN_INTERVAL = 5000;
     private static final float MIN_DISTANCE = 2;
-    private static final int MIN_ACCURACY = 5;
+    private static final int MIN_ACCURACY = 500;
 
     private Location startLocation = null;
     private Location lastLocation = null;
@@ -76,7 +76,7 @@ public class GPSDetector implements LocationListener, GoogleApiClient.Connection
             Log.d("GPSDetector", "lastLocation: \n" + "latitude = " + Double.toString(startLocation.getLatitude()) + "\nlongitude = " + Double.toString(startLocation.getLongitude()));
         }
         for (GPSLocationListener gpsLocationListener : mGPSLocationListeners) {
-            gpsLocationListener.onLocationChange();
+            gpsLocationListener.onLocationChange(location);
         }
     }
 

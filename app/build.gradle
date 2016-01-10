@@ -30,12 +30,13 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
     // This library handles authentication and authorization
-    compile 'com.spotify.sdk:spotify-auth:1.0.0-beta11@aar'
+    
 
     // This library handles music playback
-    compile 'com.spotify.sdk:spotify-player:1.0.0-beta11@aar'
-
+    
     testCompile 'junit:junit:4.12'
+    compile 'com.spotify.sdk:spotify-auth:1.0.0-beta11@aar'
+    compile 'com.spotify.sdk:spotify-player:1.0.0-beta11@aar'
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'com.android.support:design:23.1.1'
     compile 'com.jjoe64:graphview:4.0.1'

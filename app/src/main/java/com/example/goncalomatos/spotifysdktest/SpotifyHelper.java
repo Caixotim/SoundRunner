@@ -3,6 +3,7 @@ package com.example.goncalomatos.spotifysdktest;
 import android.app.Activity;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.spotify.sdk.android.authentication.AuthenticationResponse;
 import com.spotify.sdk.android.player.Config;
@@ -89,7 +90,7 @@ public class SpotifyHelper implements
     }
 
     protected String buildEchoNestRequest(double pace, String style){
-        return "http://developer.echonest.com/api/v4/playlist/static?api_key=" + ECHONEST_KEY +
+        String request = "http://developer.echonest.com/api/v4/playlist/static?api_key=" + ECHONEST_KEY +
                 "&style=" + style +
                 "&min_tempo=" + pace +
                 "&max_tempo=" + (pace + 50) +
@@ -97,9 +98,11 @@ public class SpotifyHelper implements
                 "&bucket=tracks" +
                 "&results=10" +
                 "&limit=true" +
-                "&min_duration=100" +
+                "&min_duration=60" +
                 "&artist_min_familiarity=.2" +
                 "&type=artist-description";
+        Log.d("echonest", request);
+        return request;
     }
 
     public void queryAndPlay(final double pace){
@@ -134,6 +137,9 @@ public class SpotifyHelper implements
                                         } catch (JSONException e) {
                                             e.printStackTrace();
                                         }
+                                    }
+                                    if (length == 0) {
+                                        Toast.makeText(bindedActivity, "Found no songs!", Toast.LENGTH_SHORT).show();
                                     }
                                 }
                             } catch (JSONException e) {

@@ -3,7 +3,7 @@ package com.example.goncalomatos.spotifysdktest;
 import android.app.Notification;
 import android.app.Service;
 import android.content.Intent;
-import android.os.Debug;
+import android.location.Location;
 import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -12,13 +12,15 @@ import android.util.Log;
 
 public class MockService extends Service implements GPSLocationListener{
     private static final String TAG = "BroadcastService";
-    public static final String BROADCAST_ACTION = "com.soundRunner.Mock";
+    public static final String STEP_BROADCAST_ACTION = "com.soundRunner.Step";
+    public static final String LOCATION_BROADCAST_ACTION = "com.soundRunner.Location";
     private static final int NOTIFICATION_KEY = 123;
 
     private final Handler handler = new Handler();
     private GPSDetector gpsDetector;
     private StepCounter stepCounter;
-    Intent intent;
+    Intent stepIntent;
+    Intent locationIntent;
 
     private double stepLength;
     private int lastSteps = 0;
@@ -33,7 +35,8 @@ public class MockService extends Service implements GPSLocationListener{
         stepCounter = new StepCounter(this);
         gpsDetector = new GPSDetector(this);
         gpsDetector.addGPSLocationListener(this);
-        intent = new Intent(BROADCAST_ACTION);
+        stepIntent = new Intent(STEP_BROADCAST_ACTION);
+        locationIntent = new Intent(LOCATION_BROADCAST_ACTION);
 
         if(stepLength == 0) {
             stepLength = Float.parseFloat(PreferenceManager
@@ -72,11 +75,11 @@ public class MockService extends Service implements GPSLocationListener{
             Log.d("cenas", "lastSteps:" + lastSteps);
             Log.d("cenas", "diffSteps:" + diffSteps);
             lastSteps = currentSteps;
-            intent.putExtra("numSteps", diffSteps);
-            intent.putExtra("totalSteps", currentSteps);
-            intent.putExtra("speed", speed);
-            intent.putExtra("length", stepLength);
-            sendBroadcast(intent);
+            stepIntent.putExtra("numSteps", diffSteps);
+            stepIntent.putExtra("totalSteps", currentSteps);
+            stepIntent.putExtra("speed", speed);
+            stepIntent.putExtra("length", stepLength);
+            sendBroadcast(stepIntent);
             handler.postDelayed(this, INTERVAL);
         }
     };
@@ -96,23 +99,31 @@ public class MockService extends Service implements GPSLocationListener{
     }
 
     @Override
-    public void onLocationChange() {
-        Log.d("cenas", "location changed");
+    public void onLocationChange(Location location) {
+        Log.d("cenas", "location changed ");
         //update stepLength
 
         int currentSteps = stepCounter.getSteps();
+        Log.d("gnm", "currentSteps " + currentSteps + "lastSteps " + lastStepsSinceGPSLocation);
         int diff = currentSteps -  lastStepsSinceGPSLocation;
-        if (diff == 0){
+        if (diff == 0) {
+            locationIntent.putExtra("latitude", location.getLatitude());
+            locationIntent.putExtra("longitude", location.getLongitude());
             return;
         }
         double distance = gpsDetector.getTraveledDistance();
         if (distance != -1) {
-            stepLength = distance / currentSteps;
+            stepLength = distance / diff;
             gpsDetector.resetLocation();
         }
         lastStepsSinceGPSLocation = currentSteps;
 
-        Log.d("cenas", "" + distance);
-        Log.d("cenas", "" + currentSteps);
+        Log.d("gnm", " distance " + distance);
+        Log.d("gnm", " latitude " + location.getLatitude());
+        Log.d("gnm", " longitude " + location.getLongitude());
+
+        locationIntent.putExtra("latitude", location.getLatitude());
+        locationIntent.putExtra("longitude", location.getLongitude());
+        sendBroadcast(locationIntent);
     }
 }
